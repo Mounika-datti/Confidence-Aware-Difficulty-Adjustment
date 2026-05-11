@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Adaptive Difficulty System</title>
+
+<style>
+
+/* =========================================
+   GLOBAL STYLES
+========================================= */
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+}
+
+body {
+
+    font-family: Arial, sans-serif;
+
+    background: linear-gradient(
+        to right,
+        #dbeafe,
+        #f8fafc
+    );
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+}
+
+/* =========================================
+   MAIN CONTAINER
+========================================= */
+
+.container {
+
+    width: 100%;
+
+    max-width: 500px;
+
+    background: white;
+
+    padding: 35px;
+
+    border-radius: 16px;
+
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+/* =========================================
+   TITLE
+========================================= */
+
+h1 {
+
+    text-align: center;
+
+    color: #1e3a8a;
+
+    margin-bottom: 30px;
+
+    font-size: 32px;
+}
+
+/* =========================================
+   LABELS
+========================================= */
+
+label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-weight: bold;
+
+    color: #334155;
+}
+
+/* =========================================
+   INPUT FIELDS
+========================================= */
+
+input {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 10px;
+
+    margin-bottom: 20px;
+
+    font-size: 16px;
+
+    transition: 0.3s;
+}
+
+input:focus {
+
+    border-color: #2563eb;
+
+    outline: none;
+
+    box-shadow: 0 0 5px rgba(37,99,235,0.5);
+}
+
+/* =========================================
+   BUTTON
+========================================= */
+
+button {
+
+    width: 100%;
+
+    padding: 15px;
+
+    background: #2563eb;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 10px;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+button:hover {
+
+    background: #1d4ed8;
+
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   OUTPUT BOX
+========================================= */
+
+.output-container {
+
+    margin-top: 30px;
+
+    background: #f8fafc;
+
+    border-left: 6px solid #2563eb;
+
+    padding: 18px;
+
+    border-radius: 10px;
+}
+
+.output-container h3 {
+
+    margin-bottom: 12px;
+
+    color: #1e293b;
+}
+
+/* =========================================
+   RESPONSE JSON
+========================================= */
+
+pre {
+
+    white-space: pre-wrap;
+
+    word-wrap: break-word;
+
+    font-size: 14px;
+
+    color: #0f172a;
+
+    line-height: 1.5;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.footer {
+
+    text-align: center;
+
+    margin-top: 25px;
+
+    color: #64748b;
+
+    font-size: 14px;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+@media(max-width: 600px) {
+
+    .container {
+
+        padding: 25px;
+    }
+
+    h1 {
+
+        font-size: 26px;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- TITLE -->
+
+    <h1>Adaptive Difficulty System</h1>
+
+    <!-- USER ID -->
+
+    <label>User ID</label>
+
+    <input
+        type="text"
+        id="user_id"
+        value="U101"
+        placeholder="Enter User ID"
+    >
+
+    <!-- CONFIDENCE -->
+
+    <label>Confidence</label>
+
+    <input
+        type="number"
+        step="0.1"
+        id="confidence"
+        value="0.9"
+        placeholder="Enter confidence"
+    >
+
+    <!-- CORRECTNESS -->
+
+    <label>Correctness</label>
+
+    <input
+        type="number"
+        id="correctness"
+        value="9"
+        placeholder="Enter correctness"
+    >
+
+    <!-- SUBMIT BUTTON -->
+
+    <button onclick="sendData()">
+
+        Submit
+
+    </button>
+
+    <!-- OUTPUT -->
+
+    <div class="output-container">
+
+        <h3>Response</h3>
+
+        <pre id="output">
+
+Waiting for response...
+
+        </pre>
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        AIML Project — Confidence-Aware Adaptive Difficulty System
+
+    </div>
+
+</div>
+
+<script>
+
+/* =========================================
+   SEND DATA TO FASTAPI BACKEND
+========================================= */
+
+async function sendData() {
+
+    try {
+
+        // Get input values
+        const user_id =
+            document.getElementById("user_id").value;
+
+        const confidence =
+            parseFloat(
+                document.getElementById("confidence").value
+            );
+
+        const correctness =
+            parseInt(
+                document.getElementById("correctness").value
+            );
+
+        // Send API request
+        const response = await fetch(
+
+            "http://127.0.0.1:8000/adapt",
+
+            {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type": "application/json",
+
+                    "X-API-KEY": "MY_SECRET_KEY"
+                },
+
+                body: JSON.stringify({
+
+                    user_id: user_id,
+
+                    confidence: confidence,
+
+                    correctness: correctness
+                })
+            }
+        );
+
+        // Convert response to JSON
+        const data = await response.json();
+
+        // Display response
+        document.getElementById("output")
+            .innerText =
+            JSON.stringify(
+                data,
+                null,
+                2
+            );
+    }
+
+    catch(error) {
+
+        // Display error
+        document.getElementById("output")
+            .innerText =
+            "ERROR: " + error;
+    }
+}
+
+</script>
+
+</body>
+
+</html>
